@@ -17,11 +17,30 @@ app.use(cors({
     allowHeaders: ['Accept', 'Origin', 'Content-type', 'Authorization'],
 }))
 
+const noauth = require("./routes/noAuth");
+const api = require("./routes/api");
+
 const index = require('./routes/index')
 const users = require('./routes/users')
 
+const jwt = require("koa-jwt");
+const config = require("./config/index");
+
+// Custom 401 handling if you don't want to expose koa-jwt errors to users
+app.use(function(ctx, next) {
+    return next().catch(err => {
+        if (401 == err.status) {
+            ctx.status = 401;
+            ctx.body = "Protected resource, use Authorization header to get access\n";
+        } else {
+            throw err;
+        }
+    });
+});
+
+
 // error handler
-onerror(app)
+// onerror(app)
 
 // middlewares
 app.use(bodyparser({
@@ -43,13 +62,20 @@ app.use(async (ctx, next) => {
     console.log(`${ctx.method} ${ctx.url} - ${ms}ms`)
 })
 
+app.use(
+    jwt({ secret: config.jwtsecret }).unless({ path: [/^\/public/, /^\/noauth/] })
+);
+
 // routes
-app.use(index.routes(), index.allowedMethods())
-app.use(users.routes(), users.allowedMethods())
+app.use(noauth.routes(), noauth.allowedMethods());
+app.use(api.routes(), api.allowedMethods());
+
+// app.use(index.routes(), index.allowedMethods())
+// app.use(users.routes(), users.allowedMethods())
 
 // error-handling
-app.on('error', (err, ctx) => {
-    console.error('server error', err, ctx)
-});
+// app.on('error', (err, ctx) => {
+//     console.error('server error', err, ctx)
+// });
 
 module.exports = app
