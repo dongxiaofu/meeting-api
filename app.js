@@ -17,7 +17,7 @@ app.use(cors({
     allowHeaders: ['Accept', 'Origin', 'Content-type', 'Authorization'],
 }))
 
-const noauth = require("./routes/noAuth");
+const noauth = require("./routes/noauth");
 const api = require("./routes/api");
 
 const index = require('./routes/index')
