@@ -2,7 +2,7 @@ const router = require('koa-router')()
 const jwt = require("jsonwebtoken");
 const config = require("../config");
 
-let User = require("../model/user");
+let User = require("../model/User");
 
 router.prefix('/users')
 
